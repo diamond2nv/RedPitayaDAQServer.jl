@@ -7,7 +7,7 @@ rp = RedPitaya("192.168.178.46")
 dec = 8
 modulus = 4800
 base_frequency = 125000000
-periods_per_step = 4
+periods_per_step = 10
 samples_per_period = div(modulus, dec)#*periods_per_step
 periods_per_frame = 100 # about 0.5 s frame length
 frame_period = dec*samples_per_period*periods_per_frame / base_frequency
@@ -47,7 +47,7 @@ lut = cat(lutA,lutB*0.1,dims=2)'
 setSlowDACLUT(rp, collect(lut))
 
 currFr = enableSlowDAC(rp, true, 1, frame_period, 0.5)
-uCurrentPeriod = readData(rp, currFr-1, 2)
+uCurrentPeriod = readData(rp, currFr, 1)
 
 
 sleep(0.5)
@@ -56,7 +56,7 @@ lut = cat(lutA,lutB*0.4,dims=2)'
 setSlowDACLUT(rp, collect(lut))
 
 currFr = enableSlowDAC(rp, true, 1, frame_period, 0.5)
-uCurrentPeriod2 = readData(rp, currFr-1, 2)
+uCurrentPeriod2 = readData(rp, currFr, 1)
 
 figure(1)
 clf()
