@@ -121,7 +121,7 @@ end
 
 # High level read. numFrames can adress a future frame. Data is read in
 # chunks
-function readData(rp::RedPitaya, startFrame, numFrames, numBlockAverages=1)
+function readData(rp::RedPitaya, startFrame, numFrames, numBlockAverages=1, numPeriodsPerPatch=1)
   dec = rp.decimation
   numSampPerPeriod = rp.samplesPerPeriod
   numSamp = numSampPerPeriod * numFrames
@@ -132,13 +132,14 @@ function readData(rp::RedPitaya, startFrame, numFrames, numBlockAverages=1)
     error("block averages has to be a divider of numSampPerPeriod")
   end
 
-  numAveragedSampPerPeriod = div(numSampPerPeriod,numBlockAverages)
+  numTrueSampPerPeriod = div(numSampPerPeriod,numBlockAverages*numPeriodsPerPatch)
 
-  data = zeros(Float32, numAveragedSampPerPeriod, 2, numPeriods, numFrames)
+
+  data = zeros(Float32, numTrueSampPerPeriod, 2, numPeriods*numPeriodsPerPatch, numFrames)
   wpRead = startFrame
   l=1
 
-  numFramesInMemoryBuffer = bufferSize(rp) / numSamp
+  numFramesInMemoryBuffer = bufferSize(rp) / numSampPerFrame
   @debug "numFramesInMemoryBuffer = $numFramesInMemoryBuffer"
 
   # This is a wild guess for a good chunk size
@@ -164,7 +165,7 @@ function readData(rp::RedPitaya, startFrame, numFrames, numBlockAverages=1)
 
 
     u = readData_(rp, Int64(wpRead), Int64(chunk))
-    utmp1 = reshape(u,2,numAveragedSampPerPeriod,numBlockAverages,size(u,3),size(u,4))
+    utmp1 = reshape(u,2,numTrueSampPerPeriod,numBlockAverages,size(u,3)*numPeriodsPerPatch,size(u,4))
     utmp2 = numBlockAverages > 1 ? mean(utmp1,dims=3) : utmp1
 
     data[:,1,:,l:(l+chunk-1)] = utmp2[1,:,1,:,:]
