@@ -1,5 +1,6 @@
 export amplitudeDAC, frequencyDAC, phaseDAC, modeDAC, amplitudeDACNext,
-       DCSignDAC, signalTypeDAC, offsetDAC, jumpSharpnessDAC, passPDMToFastDAC
+       DCSignDAC, signalTypeDAC, offsetDAC, jumpSharpnessDAC, passPDMToFastDAC,
+       waveforms
 
 function passPDMToFastDAC(rp::RedPitaya, val::Bool)
   valStr = val ? "ON" : "OFF"
@@ -98,6 +99,8 @@ function signalTypeDAC(rp::RedPitaya, channel)
   @show command
   return query(rp, command)
 end
+
+waveforms() = ["SINE","SQUARE","TRIANGLE","SAWTOOTH"]
 
 function signalTypeDAC(rp::RedPitaya, channel, sigType::String)
   if !(sigType in ["SINE","SQUARE","TRIANGLE","SAWTOOTH"] )
