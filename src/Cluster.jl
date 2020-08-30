@@ -99,7 +99,7 @@ for op in [:amplitudeDAC, :amplitudeDACNext, :frequencyDAC, :phaseDAC, :modulusF
   end
 end
 
-for op in [:signalTypeDAC,  :DCSignDAC]
+for op in [:signalTypeDAC,  :DCSignDAC, :jumpSharpnessDAC]
   @eval function $op(rpc::RedPitayaCluster, chan::Integer)
     idxRP = div(chan-1, 2) + 1
     chanRP = mod1(chan, 2)
@@ -133,9 +133,19 @@ function numSlowADCChan(rpc::RedPitayaCluster, num)
   for rp in rpc.rp
     numSlowADCChan(rp, num)
   end
+  return
 end
 
-#"STANDARD" or "RASTERIZED"
+function passPDMToFastDAC(rpc::RedPitayaCluster, val::Vector{Bool})
+  for (d,rp) in enumerate(rpc.rp)
+    passPDMToFastDAC(rp, val[d])
+  end
+end
+
+function passPDMToFastDAC(rpc::RedPitayaCluster)
+  return [ passPDMToFastDAC(rp) for rp in rpc.rp]
+end
+
 modeDAC(rpc::RedPitayaCluster) = modeDAC(master(rpc))
 
 function modeDAC(rpc::RedPitayaCluster, mode::String)
