@@ -1,4 +1,4 @@
-export setSlowDAC, getSlowADC, slowDACClockDivider, DIO
+export setSlowDAC, getSlowADC, slowDACClockDivider, DIO, DIODirection
 
 function setSlowDAC(rp::RedPitaya, channel, value)
   command = string("RP:PDM:CHannel", Int64(channel), ":NextValueVolt ", value)
@@ -17,18 +17,43 @@ function slowDACClockDivider(rp::RedPitaya, value)
   send(rp, command)
 end
 
-function DIO(rp::RedPitaya, pin::Int, val::Bool)
-  if pin < 1 && pin > 8
-    error("RP has only 8 digital pins!")
-  end
-
-  valStr = val ? "ON" : "OFF"
-  send(rp, string("RP:DIO:PIN$(pin-1) ", valStr))
+function isValidPin(pin::String)
+  pin in ["DIO7_P", "DIO7_N", "DIO6_P", "DIO6_N", "DIO5_N","DIO4_N","DIO3_N","DIO2_N"]
 end
 
-function DIO(rp::RedPitaya, pin::Int)
-  if pin < 1 && pin > 8
-    error("RP has only 8 digital pins!")
+function DIODirection(rp::RedPitaya, pin::String, val::String)
+  if !isValidPin(pin)
+    error("RP pin $(pin) is not available!")
   end
-  return occursin("ON", query(rp,"RP:DIO:PIN$(pin-1)?"))
+
+  if val != "IN" && val != "OUT"
+    error("value needs to be IN or OUT!")
+  end
+
+  send(rp, string("RP:DIO:DIR ", pin, ",", val))
+  return
+end
+
+
+
+function DIO(rp::RedPitaya, pin::String, val::Bool)
+  if !isValidPin(pin)
+    error("RP pin $(pin) is not available!")
+  end
+
+  DIODirection(rp, pin, "OUT")
+
+  valStr = val ? "ON" : "OFF"
+  send(rp, string("RP:DIO ", pin, ",", valStr))
+  return
+end
+
+function DIO(rp::RedPitaya, pin::String)
+  if !isValidPin(pin)
+    error("RP pin $(pin) is not available!")
+  end
+
+  DIODirection(rp, pin, "IN")
+
+  return occursin("ON", query(rp,"RP:DIO? $(pin)"))
 end
