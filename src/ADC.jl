@@ -2,7 +2,7 @@ export decimation, samplesPerPeriod, periodsPerFrame, masterTrigger, currentFram
      currentPeriod, ramWriterMode, connectADC, startADC, stopADC, readData,
      numSlowDACChan, setSlowDACLUT, enableSlowDAC, currentWP, slowDACInterpolation,
      numSlowADCChan, numLostStepsSlowADC, bufferSize, keepAliveReset, triggerMode,
-     slowDACPeriodsPerFrame
+     slowDACPeriodsPerFrame, enableDACLUT
 
 
 decimation(rp::RedPitaya) = query(rp,"RP:ADC:DECimation?", Int64)
@@ -19,16 +19,24 @@ end
 
 numSlowDACChan(rp::RedPitaya) = query(rp,"RP:ADC:SlowDAC?", Int64)
 function numSlowDACChan(rp::RedPitaya, value)
+  if value <= 0 || value > 4
+    error("Num slow DAC channels needs to be between 1 and 4!")
+  end
   send(rp, string("RP:ADC:SlowDAC ", Int64(value)))
 end
 
 function setSlowDACLUT(rp::RedPitaya, lut::Array)
-  #lutStr = join([string(",", @sprintf("%.3f",lut[l])) for l=2:length(lut)])
-  #send(rp, string("RP:ADC:SlowDACLUT ", lut[1], lutStr))
   lutFloat32 = map(Float32, lut)
   send(rp, string("RP:ADC:SlowDACLUT"))
   @debug "Writing slow DAC LUT"
   write(rp.dataSocket, lutFloat32)
+end
+
+function enableDACLUT(rp::RedPitaya, lut::Array)
+  lutBool = map(Bool, lut)
+  send(rp, string("RP:ADC:EnableDACLUT"))
+  @debug "Writing enable DAC LUT"
+  write(rp.dataSocket, lutBool)
 end
 
 function enableSlowDAC(rp::RedPitaya, enable::Bool, numFrames::Int64=0,

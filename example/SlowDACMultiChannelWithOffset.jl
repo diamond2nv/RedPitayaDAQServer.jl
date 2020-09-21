@@ -2,7 +2,8 @@ using RedPitayaDAQServer
 using PyPlot
 
 #rp = RedPitaya("rp-f04972.local")
-rp = RedPitaya("192.168.178.46")
+rp = RedPitaya("rp-f07083.local")
+#rp = RedPitaya("192.168.178.46")
 
 dec = 8
 modulus = 4800
@@ -25,6 +26,11 @@ numSlowDACChan(rp, 2)
 lutA = collect(range(0,0.3,length=slow_dac_periods_per_frame))
 lutB = collect(ones(slow_dac_periods_per_frame))
 
+lutEnableDACA = ones(Bool, slow_dac_periods_per_frame)
+lutEnableDACA[1:2:end] .= false
+lutEnableDACB = ones(Bool, slow_dac_periods_per_frame)
+lutEnableDACB[2:2:end] .= false
+
 modeDAC(rp, "STANDARD")
 frequencyDAC(rp,1,1, base_frequency / modulus)
 
@@ -43,8 +49,12 @@ masterTrigger(rp, true)
 
 sleep(0.1)
 
+
+enableDACLUT(rp, collect( cat(lutEnableDACA,lutEnableDACB,dims=2)' ) )
+
 lut = cat(lutA,lutB*0.1,dims=2)'
 setSlowDACLUT(rp, collect(lut))
+
 
 currFr = enableSlowDAC(rp, true, 1, frame_period, 0.5)
 uCurrentPeriod = readData(rp, currFr, 1)
