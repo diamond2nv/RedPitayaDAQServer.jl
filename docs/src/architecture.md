@@ -3,7 +3,7 @@
 The RedPitayaDAQServer project has an architecture where the following three parts are communicating through different interfaces:
 * FPGA on the RedPitaya
 * Server running on the CPU of the RedPitaya
-* Client on the host computer [Client](@ref)
+* [Client](@ref) on the host computer 
 
 ## FPGA/Server Interface
 
