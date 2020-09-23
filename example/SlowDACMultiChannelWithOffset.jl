@@ -1,8 +1,8 @@
 using RedPitayaDAQServer
 using PyPlot
 
-#rp = RedPitaya("rp-f04972.local")
-rp = RedPitaya("rp-f07083.local")
+rp = RedPitaya("rp-f04972.local")
+#rp = RedPitaya("rp-f07083.local")
 #rp = RedPitaya("192.168.178.46")
 
 dec = 8

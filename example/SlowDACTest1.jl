@@ -23,7 +23,7 @@ setSlowDACLUT(master(rp), collect(repeat(lut,1,2)'))
 modeDAC(rp, "STANDARD")
 frequencyDAC(rp, 1, 1, base_frequency / modulus)
 
-amplitudeDAC(rp, 1, 1, 4000)
+amplitudeDAC(rp, 1, 1, 0.4)
 phaseDAC(rp, 1, 1, 0.0 ) # Phase has to be given in between 0 and 1
 ramWriterMode(rp, "TRIGGERED")
 triggerMode(rp, "INTERNAL")

@@ -13,21 +13,22 @@ periods_per_frame = div(20, periods_per_step) # about 0.5 s frame length
 decimation(rp, dec)
 samplesPerPeriod(rp, samples_per_period)
 periodsPerFrame(rp, periods_per_frame)
+passPDMToFastDAC(rp, true)
 slowDACPeriodsPerFrame(rp, periods_per_frame)
 numSlowDACChan(rp, 1)
-lut = collect(range(0,1,length=periods_per_frame))
+lut = collect(range(0,0.7,length=periods_per_frame))
 setSlowDACLUT(rp, lut)
 
 modeDAC(rp, "STANDARD")
 frequencyDAC(rp, 1, 1, base_frequency / modulus)
 
 println(" frequency = $(frequencyDAC(rp,1,1))")
-amplitudeDAC(rp, 1, 1, 4000)
+amplitudeDACNext(rp, 1, 1, 0.2)
 phaseDAC(rp, 1, 1, 0.0 ) # Phase has to be given in between 0 and 1
 ramWriterMode(rp, "TRIGGERED")
 triggerMode(rp, "INTERNAL")
 
-numTrials = 30
+numTrials = 10
 
 signals = zeros(samples_per_period*periods_per_frame, 2, numTrials)
 
@@ -36,7 +37,7 @@ for i=1:numTrials
     masterTrigger(rp, false)
     startADC(rp, 0)
     masterTrigger(rp, true)
-    currFr = enableSlowDAC(rp, true, 1, 0.5, 1.0)
+    local currFr = enableSlowDAC(rp, true, 1, 0.5, 1.0)
     data = readData(rp, currFr, 1)
     signals[:,1,i] .= vec(data[:,1,:,:])
     signals[:,2,i] .= vec(data[:,2,:,:])
